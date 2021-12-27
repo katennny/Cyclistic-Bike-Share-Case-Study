@@ -56,8 +56,8 @@ data_all <- as.data.frame(merged_data)                                          
 
 <br>
 
-### Data CLeaning
-#### Removing duplicates
+### Data Cleaning
+#### - Removing duplicates
 Check and remove duplicate riders id record
 ```
 sum(table(data_all$ride_id)-1)                                                     # Check numbers of duplicated record
@@ -65,22 +65,28 @@ unique_data <- data_all[!duplicated(data_all$ride_id), ]                        
 print(paste("Removed", nrow(data_all) - nrow(unique_data), "duplicated rows"))     # Print out duplicated rows to make sure numbers of duplicates
 ```
 <img width="255" alt="Screen Shot 2021-12-26 at 10 36 40 PM" src="https://user-images.githubusercontent.com/94023835/147431858-f21fc091-469d-4702-bf1f-c9e3108294bc.png">
+
 Since the numbers of duplicated record is 0 and printed message is "Removed 0 duplicated rows", it means no duplicated records in the data set.
+
 
 <br>
 
-#### String inconsistencies
+
+#### - String inconsistencies
 Checking typos, capitalization errors, misplaced punctuation, or similar character data errors.
 ```
 unique(unique_data$rideable_type)
 unique(unique_data$member_casual)
 ```
 <img width="380" alt="Screen Shot 2021-12-26 at 10 42 06 PM" src="https://user-images.githubusercontent.com/94023835/147432149-ad835ab7-caaa-42fd-af7b-81e22acaebd3.png">
+
 There are no typos or data errors in this two columns, all values are consistence.
+
 
 <br>
 
-#### Missing Value
+
+#### - Missing Value
 Checking numbers if missing values and percentage of missing values per variable
 ```
 sum(is.na(unique_data))
@@ -93,7 +99,8 @@ Large amount of missing value exist in station related observations, deleting th
 
 <br>
 
-#### Parsing datetime columns
+
+#### - Parsing datetime columns
 ```
 unique_data$started_at <- as.POSIXct(unique_data$started_at, "%Y-%m-%d %H:%M:%S")
 unique_data$ended_at <- as.POSIXct(unique_data$ended_at, "%Y-%m-%d %H:%M:%S")
@@ -101,7 +108,8 @@ unique_data$ended_at <- as.POSIXct(unique_data$ended_at, "%Y-%m-%d %H:%M:%S")
 
 <br>
 
-#### Splitting Date and Time into new columns
+
+#### - Splitting Date and Time into new columns
 ```
 unique_data <- unique_data %>%
   mutate(started_date = format(unique_data$started_at, format="%Y-%m-%d"))
@@ -116,18 +124,22 @@ unique_data <- unique_data %>%
   mutate(ended_time = format(unique_data$ended_at, format="%H:%M:%S"))
 ```
 
+
 <br>
 
-#### Making sure Ended Date is later(bigger) or at the same day(equal) to the Started Date
+
+#### - Making sure Ended Date is later(bigger) or at the same day(equal) to the Started Date
 ```
 sum(unique_data$started_date > unique_data$ended_date)
 cleaned_data <- subset(unique_data, (unique_data$started_date > unique_data$ended_date) == FALSE)
 ```
 As it shown above in, 378 of rows contain a Started Date that is later than Ended Date, which doesn't make sense. Those observations would be dropped from the data set. And the data set now have 5478718 remaining rows.
 
+
 <br>
 
-#### Mutate a new row *ride_length_mins*
+
+#### - Mutate a new row *ride_length_mins*
 It represents the riding length of each riders in minutes.
 ```
 cleaned_data <- cleaned_data %>%
@@ -136,9 +148,11 @@ summary(cleaned_data$ride_length_mins)
 ```
 <img width="403" alt="Screen Shot 2021-12-26 at 11 12 25 PM" src="https://user-images.githubusercontent.com/94023835/147433609-770afbd2-ead0-4209-9b09-369978f36461.png">
 
+
 <br>
 
-#### Mutate a new row *Weekday*
+
+#### - Mutate a new row *Weekday*
 This represents the day of the week that each ride started.
 ```
 cleaned_data <- cleaned_data %>%
@@ -147,9 +161,11 @@ unique(cleaned_data$weekday)
 ```
 <img width="343" alt="Screen Shot 2021-12-26 at 11 13 31 PM" src="https://user-images.githubusercontent.com/94023835/147433666-c07b2b52-0bee-48a4-a039-6ee20bf4280a.png">
 
+
 <br>
 
-#### Mutate a new row *started_hour*
+
+#### - Mutate a new row *started_hour*
 Extracting the hour of the day that each ride started.
 ```
 cleaned_data <- cleaned_data %>%
@@ -158,8 +174,32 @@ unique(cleaned_data$start_hour)
 ```
 <img width="909" alt="Screen Shot 2021-12-26 at 11 16 34 PM" src="https://user-images.githubusercontent.com/94023835/147433846-c1dc074b-14f2-4716-90d8-2b7ee625d059.png">
 
+<br>
+
+### Saving data as csv. file
+```
+cleaned_data %>%
+  write.csv("cyclistic_clean_data.csv")
+```
+
+<br>
+
+
 ### - What tools are you choosing and why?
-Since this is a large dataset, using R is more effective.
+Since this is a large data set, using R is more effective.
 ### - Have you ensured your data’s integrity?
-Yes, the dataset is consistent and accurate.
+Yes, the data set is consistent and accurate.
 ### - What steps have you taken to ensure that your data is clean?
+Checking duplicated and missing values, make sure values are consistence and removed rows that contains incorrect srated time.
+### How can you verify that your data is clean and ready to analyze?
+1. Going back to the original unclean data set and comparing it to the one I have now.
+2. Think about the bussine problem again and make sure the varaibles in the data set are useful to help solving the problem and project goal.
+3. Have teammate to review the data from a fresh persepective (if possible).
+### Have you documented your cleaning process so you can review and share those results?
+Yes, it is all documented in R markdown and this  repository.
+
+
+<br>
+
+
+## Analyze
